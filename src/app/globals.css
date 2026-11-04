@@ -1,0 +1,150 @@
+@import "tailwindcss";
+@import "lenis/dist/lenis.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+}
+
+:root {
+  --background: #f5f3ed;
+  --foreground: #17212b;
+  --card: #ebe8df;
+  --card-foreground: #17212b;
+  --primary: #82283f;
+  --primary-foreground: #fffaf5;
+  --muted: #e8e5dc;
+  --muted-foreground: #555f67;
+  --border: #e0ddd3;
+  --input: #d8d5cc;
+  --ring: #82283f;
+}
+
+.dark {
+  --background: #0c1420;
+  --foreground: #edf2f4;
+  --card: #141f2c;
+  --card-foreground: #edf2f4;
+  --primary: #f0a7b7;
+  --primary-foreground: #2a1119;
+  --muted: #182635;
+  --muted-foreground: #b2bec9;
+  --border: #1b2935;
+  --input: #344654;
+  --ring: #f0a7b7;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 3px;
+  }
+  body {
+    @apply bg-background text-foreground transition-colors duration-300;
+  }
+  /* Safari still draws its own disclosure triangle on <summary> */
+  summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Motion: plain CSS, and only for visitors who haven't asked for    */
+/* reduced motion. Nothing here hides content if it doesn't run.     */
+/* ---------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Fallback until the smooth-scroll script (Lenis) loads; once it does, it drives the scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+  html.lenis {
+    scroll-behavior: auto;
+  }
+
+  /* Page-load entrance (hero text, mobile menu) */
+  .enter {
+    animation: enter-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: var(--enter-delay, 0s);
+  }
+  .menu-enter {
+    animation: enter-down 0.2s ease-out both;
+  }
+}
+
+/* Fade-up as sections scroll into view, and a gentle photo parallax.
+   Browsers without scroll-driven animations just show the content. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: enter-up linear both;
+      animation-timeline: view();
+      animation-range: entry 5% entry 45%;
+    }
+    .parallax {
+      animation: drift linear both;
+      animation-timeline: view();
+      animation-range: cover;
+    }
+  }
+}
+
+@keyframes enter-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes enter-down {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes drift {
+  from {
+    transform: translateY(-6%) scale(1.14);
+  }
+  to {
+    transform: translateY(6%) scale(1.14);
+  }
+}
+
+/* Set photo morphing from its card into the set page (React <ViewTransition>) */
+::view-transition-group(.morph) {
+  animation-duration: 450ms;
+  animation-timing-function: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
